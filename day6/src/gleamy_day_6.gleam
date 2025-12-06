@@ -149,11 +149,11 @@ fn get_columns(file: String, reg_exp: String) -> List(List(String)) {
   let assert Ok(regexp_first) = regexp.compile(reg_exp, options)
   let rows =
     lines
-    |> list.fold([[]], fn(acc, line) {
+    |> list.fold([], fn(acc, line) {
       let data =
         regexp.scan(regexp_first, line)
         |> list.map(fn(m) { m.content })
       acc |> list.append([data])
     })
-  rows |> list.drop(1) |> list.transpose
+  rows |> list.transpose
 }
