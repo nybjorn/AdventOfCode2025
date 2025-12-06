@@ -30,7 +30,6 @@ pub fn main() -> Nil {
       |> transform_to_same_format_as_part1
       |> calc
       |> echo
-
       "2️⃣  " |> io.print
     }
     _ -> {
@@ -82,40 +81,40 @@ fn transform_to_same_format_as_part1(board: dict.Dict(#(Int, Int), String)) {
   let column_nbr = list.range(max_y, 0)
   let row_nbr = list.range(0, max_x)
   column_nbr
-    |> list.fold([], fn(acc, y) {
-      let number =
-        row_nbr
-        |> list.map(fn(x) {
-          case dict.get(board, #(x, y)) {
-            Ok(x) -> x
-            Error(_) -> panic as "Out of bounds"
-          }
-        })
-        |> string.join("")
-      let last_token = string.last(number) |> result.unwrap("")
-      let fixed = case last_token {
-        "*" | "+" -> [number |> string.drop_end(1) |> string.trim, last_token]
-        _ -> [string.trim(number)]
-      }
-      acc |> list.append(fixed)
-    })
-    // list with number and operators and some blanks separating the columns
-    |> list.filter(fn(x) { x != "" })
-    // Chunk by operators to group numbers with their operators
-    |> list.chunk(by: fn(n) { n == "+" || n == "*" }) 
-    // Did not work as expected, so manually put the operators with the numbers
-    |> list.fold([], fn(acc, item) { 
-      case item |> list.length() {
-        1 -> {
-          let last_list = acc |> list.last |> result.unwrap([])
-          let new_list = last_list |> list.append(item)
-          let acc_length = acc |> list.length() |> int.subtract(1)
-          let acc = acc |> list.take(acc_length) |> list.append([new_list])
-          acc
+  |> list.fold([], fn(acc, y) {
+    let number =
+      row_nbr
+      |> list.map(fn(x) {
+        case dict.get(board, #(x, y)) {
+          Ok(x) -> x
+          Error(_) -> panic as "Out of bounds"
         }
-        _ -> acc |> list.append([item])
+      })
+      |> string.join("")
+    let last_token = string.last(number) |> result.unwrap("")
+    let fixed = case last_token {
+      "*" | "+" -> [number |> string.drop_end(1) |> string.trim, last_token]
+      _ -> [string.trim(number)]
+    }
+    acc |> list.append(fixed)
+  })
+  // list with number and operators and some blanks separating the columns
+  |> list.filter(fn(x) { x != "" })
+  // Chunk by operators to group numbers with their operators
+  |> list.chunk(by: fn(n) { n == "+" || n == "*" })
+  // Did not work as expected, so manually put the operators with the numbers
+  |> list.fold([], fn(acc, item) {
+    case item |> list.length() {
+      1 -> {
+        let last_list = acc |> list.last |> result.unwrap([])
+        let new_list = last_list |> list.append(item)
+        let acc_length = acc |> list.length() |> int.subtract(1)
+        let acc = acc |> list.take(acc_length) |> list.append([new_list])
+        acc
       }
-    }) 
+      _ -> acc |> list.append([item])
+    }
+  })
 }
 
 fn calc(columns: List(List(String))) -> Int {
